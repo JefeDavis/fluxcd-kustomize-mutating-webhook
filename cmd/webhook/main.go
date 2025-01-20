@@ -8,7 +8,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/xunholy/fluxcd-mutating-webhook/internal/config"
-	"github.com/xunholy/fluxcd-mutating-webhook/internal/telemetry"
 	"github.com/xunholy/fluxcd-mutating-webhook/internal/webhook"
 	"github.com/xunholy/fluxcd-mutating-webhook/pkg/utils"
 )
@@ -20,11 +19,8 @@ func main() {
 	}
 	config.InitLogger(cfg.LogLevel)
 
-	shutdown := telemetry.InitTracer()
-	defer shutdown()
-
-	if err := utils.ReadConfigMap(cfg.ConfigDir); err != nil {
-		log.Warn().Err(err).Msg("Failed to read configuration map")
+	if err := utils.ReadConfigDirectory(cfg.ConfigDir); err != nil {
+		log.Warn().Err(err).Msg("Error while reading config directory")
 	}
 
 	server, err := webhook.NewServer(cfg)

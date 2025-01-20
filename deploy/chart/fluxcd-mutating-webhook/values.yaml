@@ -1,0 +1,79 @@
+# Default values for kustomize-mutating-webhook.
+
+replicaCount: 3
+
+image:
+  repository: ghcr.io/xunholy/kustomize-mutating-webhook
+  pullPolicy: Always
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8443
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+annotations: {}
+podAnnotations: {}
+
+tolerations: []
+
+affinity: {}
+
+webhook:
+  failurePolicy: Fail
+  timeoutSeconds: 30
+  namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+          - "flux-system"
+
+certManager:
+  enabled: true
+  certificateDuration: "2160h" # 90d
+  certificateRenewBefore: "360h" # 15d
+
+configMaps:
+  - create: false
+    name: cluster-config
+    optional: false
+    data: {}
+
+secrets: []
+  # - name: my-cluster-secrets
+  #   optional: true
+
+env:
+  LOG_LEVEL: info
+  RATE_LIMIT: "100"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
