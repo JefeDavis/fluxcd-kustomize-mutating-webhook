@@ -8,7 +8,7 @@ In standard FluxCD setups, postBuild substitutions in Kustomizations can only re
 
 ## How It Works
 
-The webhook listens for Kustomization resources creation or update events. On intercepting such an event, it dynamically injects substitution variables into the Kustomization resource. These variables are fetched from a centralized ConfigMap, allowing for consistent and centralized management of configurations used across various namespaces.
+The webhook listens for Kustomization resources creation or update events. On intercepting such an event, it dynamically injects substitution variables into the Kustomization resource. These variables are fetched from centralized ConfigMaps or Secrets, allowing for consistent and centralized management of configurations used across various namespaces.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ This structure separates concerns and makes the codebase more modular and mainta
 
 ## Prerequisites
 
-The Kustomize Mutating Webhook is pre-configured to mount the configmap called `cluster-config` however, this can be set to any name. Ensure this exists in the cluster otherwise there will be no values to patch into your FluxCD Kustomization resources. Also see [Changing ConfigMap Reference](#changing-configmap-reference)
+The Kustomize Mutating Webhook is pre-configured to mount a configMap named `cluster-config`. This can be configured to any name. Ensure this exists in the cluster otherwise there will be no values to patch into your FluxCD Kustomization resources. Also see [Changing ConfigMap / Secret Reference](#changing-configmap--secret-reference)
 
 Additionally, the following are required:
 
@@ -123,9 +123,9 @@ Check the logs of the webhook to ensure that the log level has changed:
 kubectl logs --selector=app=kustomize-mutating-webhook -n flux-system
 ```
 
-### Changing ConfigMap Reference
+### Changing ConfigMap / Secret Reference
 
-The webhook is designed to fetch substitution variables from a specified ConfigMap. To change the ConfigMap it references:
+The webhook is designed to fetch substitution variables from specified ConfigMaps and / or Secrets as long as they are mounted into the configuration directory (which defaults to `/etc/config`) or any of its subdirectories.
 
 1. Update the ConfigMap Kubernetes Deployment
 

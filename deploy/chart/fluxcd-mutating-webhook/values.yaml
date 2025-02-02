@@ -1,6 +1,6 @@
 # Default values for kustomize-mutating-webhook.
 
-replicaCount: 3
+replicaCount: 1
 
 image:
   repository: ghcr.io/xunholy/kustomize-mutating-webhook
