@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -30,7 +31,7 @@ func main() {
 
 	go func() {
 		log.Info().Msgf("Starting the webhook server on %s", cfg.ServerAddress)
-		if err := server.ListenAndServeTLS("", ""); err != nil {
+		if err := server.ListenAndServeTLS("", ""); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("Failed to start server")
 		}
 	}()
