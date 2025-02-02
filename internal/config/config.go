@@ -19,7 +19,7 @@ type Config struct {
 }
 
 const (
-	defaultServerAddress = ":8080"
+	defaultServerAddress = ":8443"
 	defaultCertFile      = "/etc/webhook/certs/tls.crt"
 	defaultKeyFile       = "/etc/webhook/certs/tls.key"
 	defaultConfigDir     = "/etc/config"

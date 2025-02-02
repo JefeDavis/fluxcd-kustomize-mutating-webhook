@@ -74,6 +74,7 @@ env:
   LOG_LEVEL: info
   RATE_LIMIT: "100"
 
+# Enable if you're using replicas: 3 or greater
 podDisruptionBudget:
-  enabled: true
+  enabled: false
   minAvailable: 2
