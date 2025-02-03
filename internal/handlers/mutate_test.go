@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"bytes"
@@ -9,14 +9,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xunholy/fluxcd-mutating-webhook/pkg/utils"
 	admissionv1 "k8s.io/api/admission/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func TestMutatingWebhook(t *testing.T) {
+func TestHandleMutate(t *testing.T) {
 	// Set up test config
-	appConfig = map[string]string{
+	utils.AppConfig.Config = map[string]string{
 		"TEST_KEY": "test_value",
 	}
 
@@ -109,7 +111,7 @@ func TestMutatingWebhook(t *testing.T) {
 			rr := httptest.NewRecorder()
 
 			// Call the handler
-			handleMutate(rr, req)
+			HandleMutate(rr, req)
 
 			// Check the status code
 			assert.Equal(t, http.StatusOK, rr.Code)
@@ -130,51 +132,40 @@ func TestMutatingWebhook(t *testing.T) {
 			} else {
 				assert.Nil(t, respAR.Response.Patch)
 			}
-
-			t.Logf("Test case: %s", tt.name)
-			t.Logf("Input object: %v", tt.inputObject)
-			t.Logf("Response: %v", respAR.Response)
 		})
 	}
 }
 
-func BenchmarkMutatingWebhook(b *testing.B) {
-	// Set up test config
-	appConfig = map[string]string{
+func TestCreatePatch(t *testing.T) {
+	utils.AppConfig.Config = map[string]string{
 		"TEST_KEY": "test_value",
 	}
 
-	inputObject := map[string]interface{}{
-		"apiVersion": "kustomize.toolkit.fluxcd.io/v1",
-		"kind":       "Kustomization",
-		"metadata": map[string]interface{}{
-			"name":      "test-kustomization",
-			"namespace": "default",
-		},
-		"spec": map[string]interface{}{},
-	}
-
-	objBytes, _ := json.Marshal(inputObject)
-
-	ar := admissionv1.AdmissionReview{
-		Request: &admissionv1.AdmissionRequest{
-			Object: runtime.RawExtension{Raw: objBytes},
-			Kind: metav1.GroupVersionKind{
-				Group:   "kustomize.toolkit.fluxcd.io",
-				Version: "v1",
-				Kind:    "Kustomization",
-			},
-			Operation: admissionv1.Create,
+	obj := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"spec": map[string]interface{}{},
 		},
 	}
 
-	arBytes, _ := json.Marshal(ar)
+	patch := createPatch(obj)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("POST", "/mutate", bytes.NewBuffer(arBytes))
-		req.Header.Set("Content-Type", "application/json")
-		rr := httptest.NewRecorder()
-		handleMutate(rr, req)
+	expectedPatch := []map[string]interface{}{
+		{
+			"op":    "add",
+			"path":  "/spec/postBuild",
+			"value": map[string]interface{}{},
+		},
+		{
+			"op":    "add",
+			"path":  "/spec/postBuild/substitute",
+			"value": map[string]interface{}{},
+		},
+		{
+			"op":    "add",
+			"path":  "/spec/postBuild/substitute/TEST_KEY",
+			"value": "test_value",
+		},
 	}
+
+	assert.Equal(t, expectedPatch, patch)
 }

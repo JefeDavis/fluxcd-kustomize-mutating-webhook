@@ -10,6 +10,35 @@ In standard FluxCD setups, postBuild substitutions in Kustomizations can only re
 
 The webhook listens for Kustomization resources creation or update events. On intercepting such an event, it dynamically injects substitution variables into the Kustomization resource. These variables are fetched from centralized ConfigMaps or Secrets, allowing for consistent and centralized management of configurations used across various namespaces.
 
+## Project Structure
+
+The project is now structured as follows:
+
+```
+.
+├── cmd
+│   └── webhook
+│       └── main.go           # Entry point of the application
+├── internal
+│   ├── config
+│   │   └── config.go         # Configuration management
+│   ├── handlers
+│   │   └── mutate.go         # Webhook mutation logic
+│   ├── metrics
+│   │   └── metrics.go        # Prometheus metrics
+│   └── webhook
+│       ├── certwatcher.go    # Certificate watcher
+│       └── server.go         # HTTP server setup
+├── pkg
+│   └── utils
+│       └── utils.go          # Utility functions
+├── go.mod
+├── go.sum
+└── README.md
+```
+
+This structure separates concerns and makes the codebase more modular and maintainable.
+
 ## Prerequisites
 
 The Kustomize Mutating Webhook is pre-configured to mount a configMap named `cluster-config`. This can be configured to any name. Ensure this exists in the cluster otherwise there will be no values to patch into your FluxCD Kustomization resources. Also see [Changing ConfigMap / Secret Reference](#changing-configmap--secret-reference)
@@ -21,7 +50,7 @@ Additionally, the following are required:
 
 ## Installation
 
-Using Kubernetes Manifests
+### Using Kubernetes Manifests
 
 1. Clone the Repository
 
@@ -44,6 +73,20 @@ Check if the webhook service and deployment are running correctly.
 
 ```bash
 kubectl get pods --selector=app=kustomize-mutating-webhook -n flux-system
+```
+
+### Building and Running Locally
+
+To build the webhook:
+
+```bash
+go build -o webhook ./cmd/webhook
+```
+
+To run the webhook:
+
+```bash
+./webhook
 ```
 
 ## Usage
@@ -145,8 +188,8 @@ PASS
 ok      github.com/xunholy/fluxcd-mutating-webhook      0.015s
 ```
 
-- "PASS" indicates all tests have passed successfully.
-- The time at the end (0.015s in this example) shows how long the tests took to run.
+* "PASS" indicates all tests have passed successfully.
+* The time at the end (0.015s in this example) shows how long the tests took to run.
 
 #### Benchmark Results
 
@@ -161,11 +204,11 @@ ok      github.com/xunholy/fluxcd-mutating-webhook      1.535s
 
 Here's how to interpret these results:
 
-- The first line shows a log output from the benchmark run.
-- "25410" is the number of iterations the benchmark ran.
-- "41239 ns/op" means each operation took an average of 41,239 nanoseconds (about 0.04 milliseconds).
-- "PASS" indicates the benchmark completed successfully.
-- "1.535s" is the total time taken for all benchmark runs.
+* The first line shows a log output from the benchmark run.
+* "25410" is the number of iterations the benchmark ran.
+* "41239 ns/op" means each operation took an average of 41,239 nanoseconds (about 0.04 milliseconds).
+* "PASS" indicates the benchmark completed successfully.
+* "1.535s" is the total time taken for all benchmark runs.
 
 ### Importance of Testing and Benchmarking
 
@@ -178,6 +221,28 @@ Regular testing and benchmarking are crucial for several reasons:
 
 We encourage contributors to run tests and benchmarks locally before submitting pull requests, and to include new tests for any added functionality.
 
+## FAQ
+
+## Server Exits Immedietly
+
+If you're seeing the mutating webhook starts but then exit with the following logs, it's highly likely the service and/or container ports may not align.
+
+```log
+11:28PM INF Log level set to 'debug'
+11:28PM INF Starting the webhook server on :8080
+11:30PM INF Shutting down server...
+11:30PM INF Server exiting
+```
+
+## Webhook Timeout
+
+If the webhook is failing to be called, and you're seeing the following logs, it's highly likely you have a network policy rule that is blocking the traffic.
+
+```log
+Error from server (InternalError): error when creating "STDIN": Internal error occurred: failed calling webhook "kustomize-mutating-webhook.xunholy.com": failed to call webhook: Post "https://kustomize-mutating-webhook.flux-system.svc:8443/mutate?timeout=30s": dial tcp 10.96.156.159:8443: connect: operation not permitted
+```
+
+Checkout the example network policy [here](./deploy/static/network-policy.yaml) for reference.
 
 ## License
 

@@ -10,4 +10,4 @@ This Helm chart deploys a mutating webhook for FluxCD Kustomization resources. I
 
 ## Prerequisites
 
-- Kubernetes 
+- Kubernetes

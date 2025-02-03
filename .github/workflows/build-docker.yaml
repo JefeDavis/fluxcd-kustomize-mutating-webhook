@@ -68,7 +68,10 @@ jobs:
       - name: Generate version
         id: version
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PR_NUMBER=$(echo "${{ github.event.pull_request.number }}")
+            echo "VERSION=pr-${PR_NUMBER}-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           else
             echo "VERSION=$(date +'%Y.%m.%d')-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
@@ -80,9 +83,8 @@ jobs:
           context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
-            ghcr.io/xunholy/kustomize-mutating-webhook:latest
             ghcr.io/xunholy/kustomize-mutating-webhook:${{ steps.version.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

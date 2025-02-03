@@ -1,6 +1,6 @@
 # Default values for kustomize-mutating-webhook.
 
-replicaCount: 3
+replicas: 1
 
 image:
   repository: ghcr.io/xunholy/kustomize-mutating-webhook
@@ -74,6 +74,10 @@ env:
   LOG_LEVEL: info
   RATE_LIMIT: "100"
 
+# Enable if you're using replicas: 3 or greater
 podDisruptionBudget:
-  enabled: true
+  enabled: false
   minAvailable: 2
+
+networkpolicy:
+  create: true
