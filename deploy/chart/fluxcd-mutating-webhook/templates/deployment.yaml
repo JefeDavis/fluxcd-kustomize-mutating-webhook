@@ -44,7 +44,7 @@ spec:
             {{- end }}
           ports:
             - name: https
-              containerPort: 8443
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:

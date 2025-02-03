@@ -221,6 +221,29 @@ Regular testing and benchmarking are crucial for several reasons:
 
 We encourage contributors to run tests and benchmarks locally before submitting pull requests, and to include new tests for any added functionality.
 
+## FAQ
+
+## Server Exits Immedietly
+
+If you're seeing the mutating webhook starts but then exit with the following logs, it's highly likely the service and/or container ports may not align.
+
+```log
+11:28PM INF Log level set to 'debug'
+11:28PM INF Starting the webhook server on :8080
+11:30PM INF Shutting down server...
+11:30PM INF Server exiting
+```
+
+## Webhook Timeout
+
+If the webhook is failing to be called, and you're seeing the following logs, it's highly likely you have a network policy rule that is blocking the traffic.
+
+```log
+Error from server (InternalError): error when creating "STDIN": Internal error occurred: failed calling webhook "kustomize-mutating-webhook.xunholy.com": failed to call webhook: Post "https://kustomize-mutating-webhook.flux-system.svc:8443/mutate?timeout=30s": dial tcp 10.96.156.159:8443: connect: operation not permitted
+```
+
+Checkout the example network policy [here](./deploy/static/network-policy.yaml) for reference.
+
 ## License
 
 Distributed under the Apache 2.0 License. See [LICENSE](./LICENSE) for more information.

@@ -1,13 +1,15 @@
+{{- if .Values.networkpolicy.create -}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: kustomize-mutating-webhook
-  namespace: flux-system
+  labels:
+    {{- include "kustomize-mutating-webhook.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: kustomize-mutating-webhook
+      {{- include "kustomize-mutating-webhook.selectorLabels" . | nindent 6 }}
   policyTypes:
     - Ingress
     - Egress
@@ -15,7 +17,7 @@ spec:
     # Allow Kubernetes API server to connect with port 8443
     - from:
       ports:
-        - port: 8443
+        - port: {{ .Values.service.port }}
           protocol: TCP
   egress:
     # Allow Webhook server to connect with Kubernetes API server on port 443
@@ -25,3 +27,4 @@ spec:
       to:
       - ipBlock:
           cidr: 0.0.0.0/0
+{{- end }}

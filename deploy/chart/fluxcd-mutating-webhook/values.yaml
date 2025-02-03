@@ -78,3 +78,6 @@ env:
 podDisruptionBudget:
   enabled: false
   minAvailable: 2
+
+networkpolicy:
+  create: true
