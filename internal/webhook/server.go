@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/xunholy/fluxcd-mutating-webhook/internal/config"
 	"github.com/xunholy/fluxcd-mutating-webhook/internal/handlers"
 	"github.com/xunholy/fluxcd-mutating-webhook/internal/metrics"
@@ -50,9 +52,9 @@ func setupRouter(rateLimit int) *chi.Mux {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(rateLimitMiddleware(rate.Limit(rateLimit), rateLimit))
+	r.Use(conditionalLoggerMiddleware())
 
 	r.Post("/mutate", handlers.HandleMutate)
 	r.Get("/health", handleHealth)
@@ -98,4 +100,25 @@ func handleReady(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ready)
+}
+
+func conditionalLoggerMiddleware() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if zerolog.GlobalLevel() == zerolog.DebugLevel {
+				start := time.Now()
+				next.ServeHTTP(w, r)
+				duration := time.Since(start)
+
+				log.Debug().
+					Str("method", r.Method).
+					Str("path", r.URL.Path).
+					Str("remote_ip", r.RemoteAddr).
+					Dur("duration", duration).
+					Msg("Handled request")
+			} else {
+				next.ServeHTTP(w, r)
+			}
+		})
+	}
 }
