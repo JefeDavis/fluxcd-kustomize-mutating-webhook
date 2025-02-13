@@ -38,6 +38,8 @@ resources:
     cpu: 500m
     memory: 256Mi
 
+additionalLabels: {}
+  # custom-label: "example"
 annotations: {}
 podAnnotations: {}
 
