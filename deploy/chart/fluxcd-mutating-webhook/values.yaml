@@ -59,9 +59,11 @@ certManager:
   enabled: true
   certificateDuration: "2160h" # 90d
   certificateRenewBefore: "360h" # 15d
-  GoogleCASClusterIssuerCertificate:
-    enabled: false
-    name: googlecasissuer-cas
+  CASClusterIssuer:
+    enabled: true
+    group: "awspca.cert-manager.io" # cas-issuer.jetstack.io|awspca.cert-manager.io
+    kind: "AWSPCAClusterIssuer" # GoogleCASClusterIssuer|AWSPCAClusterIssuer
+    name: casissuer-name
 
 configMaps:
   - create: false

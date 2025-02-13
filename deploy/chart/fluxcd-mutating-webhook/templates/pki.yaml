@@ -1,5 +1,5 @@
 {{- if .Values.certManager.enabled -}}
-{{- if not .Values.certManager.GoogleCASClusterIssuerCertificate.enabled -}}
+{{- if not .Values.certManager.CASClusterIssuer.enabled -}}
 ---
 # Create a selfsigned Issuer, in order to create a root CA certificate for
 # signing webhook serving certificates
@@ -50,11 +50,11 @@ spec:
   dnsNames:
     - {{ include "kustomize-mutating-webhook.fullname" . }}.{{ .Release.Namespace }}.svc
     - {{ include "kustomize-mutating-webhook.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  {{- if .Values.certManager.GoogleCASClusterIssuerCertificate.enabled }}
+  {{- if .Values.certManager.CASClusterIssuer.enabled }}
   issuerRef:
-    group: cas-issuer.jetstack.io
-    kind: GoogleCASClusterIssuer
-    name: {{ .Values.certManager.GoogleCASClusterIssuerCertificate.name }}
+    group: {{ .Values.certManager.CASClusterIssuer.group }}
+    kind: {{ .Values.certManager.CASClusterIssuer.kind }}
+    name: {{ .Values.certManager.CASClusterIssuer.name }}
   {{- else }}
   issuerRef:
     name: {{ include "kustomize-mutating-webhook.fullname" . }}
