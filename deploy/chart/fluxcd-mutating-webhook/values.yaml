@@ -59,6 +59,9 @@ certManager:
   enabled: true
   certificateDuration: "2160h" # 90d
   certificateRenewBefore: "360h" # 15d
+  GoogleCASClusterIssuerCertificate:
+    enabled: false
+    name: googlecasissuer-cas
 
 configMaps:
   - create: false
