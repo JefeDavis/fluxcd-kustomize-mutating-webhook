@@ -60,7 +60,7 @@ certManager:
   certificateDuration: "2160h" # 90d
   certificateRenewBefore: "360h" # 15d
   CASClusterIssuer:
-    enabled: true
+    enabled: false
     group: "awspca.cert-manager.io" # cas-issuer.jetstack.io|awspca.cert-manager.io
     kind: "AWSPCAClusterIssuer" # GoogleCASClusterIssuer|AWSPCAClusterIssuer
     name: casissuer-name
