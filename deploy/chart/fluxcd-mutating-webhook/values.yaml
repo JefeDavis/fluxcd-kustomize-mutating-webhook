@@ -38,6 +38,8 @@ resources:
     cpu: 500m
     memory: 256Mi
 
+additionalLabels: {}
+  # custom-label: "example"
 annotations: {}
 podAnnotations: {}
 
@@ -59,6 +61,11 @@ certManager:
   enabled: true
   certificateDuration: "2160h" # 90d
   certificateRenewBefore: "360h" # 15d
+  CASClusterIssuer:
+    enabled: false
+    group: "awspca.cert-manager.io" # cas-issuer.jetstack.io|awspca.cert-manager.io
+    kind: "AWSPCAClusterIssuer" # GoogleCASClusterIssuer|AWSPCAClusterIssuer
+    name: casissuer-name
 
 configMaps:
   - create: false
