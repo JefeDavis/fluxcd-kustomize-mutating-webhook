@@ -13,6 +13,7 @@ fullnameOverride: ""
 serviceAccount:
   create: true
   name: ""
+  headless: true
 
 podSecurityContext:
   runAsNonRoot: true
