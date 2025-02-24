@@ -13,7 +13,6 @@ fullnameOverride: ""
 serviceAccount:
   create: true
   name: ""
-  headless: true
 
 podSecurityContext:
   runAsNonRoot: true
@@ -30,6 +29,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 8443
+  headless: true
 
 resources:
   requests:
