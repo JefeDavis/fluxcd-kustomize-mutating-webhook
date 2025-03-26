@@ -89,7 +89,7 @@ jobs:
 
       - name: Sign Chart with Cosign
         if: ${{ github.event_name != 'pull_request' }}
-        run: cosign sign --yes ${{ env.REGISTRY }}/${{ env.OWNER }}/charts/fluxcd-mutating-webhook:${{ steps.chart-version.outputs.version }}
+        run: cosign sign --yes ${{ env.REGISTRY }}/${{ env.OWNER }}/charts/kustomize-mutating-webhook:${{ steps.chart-version.outputs.version }}
 
       - name: Commit README changes
         if: ${{ github.event_name != 'pull_request' }}
