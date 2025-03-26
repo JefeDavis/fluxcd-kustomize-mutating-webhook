@@ -85,7 +85,7 @@ jobs:
       - name: Push OCI Chart
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          helm push fluxcd-mutating-webhook-${{ steps.chart-version.outputs.version }}.tgz oci://${{ env.REGISTRY }}/${{ env.OWNER }}/charts
+          helm push kustomize-mutating-webhook-${{ steps.chart-version.outputs.version }}.tgz oci://${{ env.REGISTRY }}/${{ env.OWNER }}/charts
 
       - name: Sign Chart with Cosign
         if: ${{ github.event_name != 'pull_request' }}
